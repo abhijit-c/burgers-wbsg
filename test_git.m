@@ -1,2 +1,0 @@
-%% Token
-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
