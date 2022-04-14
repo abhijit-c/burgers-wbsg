@@ -35,3 +35,21 @@ function [u_h] = iburgers_wbsg(x_range, u0, ul, E, T, Nc)
 % Date  : 2022/04/14
   f = @(u) u^2 / 2;
 end
+
+function A = build_A(E, u_h)
+  M = length(E);
+  for m=1:M
+    for n=1:M
+      A(m,n) = u_h' * E[:,m,n];
+    end
+  end
+end
+
+function B = build_B(E, b_h)
+  M = length(E);
+  for m=1:M
+    for n=1:M
+      b(m,n) = b_h' * E[:,m,n];
+    end
+  end
+end
