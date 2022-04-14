@@ -1,4 +1,4 @@
-function [u_h] = iburgers_wbsg(x_range, u0, ul, E, T, Nc)
+function [u_h] = iburgers_wbsg(x_range, u0_h, ul, E, T, Nc)
 % burgers_wbsg.m solves the Burgers equation 
 % \[
 %   u_t(x,t,z) + f_x(u(x,t,z)) = -b'(x,z)u(x,t,z), (*)
@@ -18,8 +18,12 @@ function [u_h] = iburgers_wbsg(x_range, u0, ul, E, T, Nc)
 % Parameter List:
 % x_range : [x_range(1),x_range(2)] denotes the spatial domain to solve (*)
 %           over.
-% u0 : Anonymous function describing the initial condition of the model.
-%      Must be defined over x_range.
+% u0_h : Anonymous function describing the initial condition of the model
+%        represented in the basis of the orthogonal polynomials, i.e. 
+%        \[
+%          u0(x) = \sum_{m=1}^M u0_h(m) \Phi_m(x)
+%        \]
+%        Must be defined over x_range.
 % ul : Anonymous function describing the (Dirichlet) boundary condition at
 %      x_range(1).
 % E : M x M x M matrix where $E(k,m,n) = Expectation[\Phi_k \Phi_m \Phi_n]$,
