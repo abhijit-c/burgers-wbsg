@@ -1,4 +1,4 @@
-function [u_h] = iburgers_wbsg(x_range, u0_h, ul, E, T, dx)
+function [u_h] = iburgers_wbsg(x_range, u0_h, b_h, ul, E, T, dx)
 % burgers_wbsg.m solves the Burgers equation 
 % \[
 %   u_t(x,t,z) + f_x(u(x,t,z)) = -b'(x,z)u(x,t,z), (*)
@@ -24,6 +24,12 @@ function [u_h] = iburgers_wbsg(x_range, u0_h, ul, E, T, dx)
 %        \[
 %          avg(u0(x_j)) \approx \sum_{m=1}^M u0_h(m,j) polyval(Phi{m},x_j)
 %        \]
+% b_h : M x N matrix where the jth column corresponds to the cell average of the
+%       initial condition over the jth spatial cell expanded out in the
+%       orthogonal polynomial basis corresponding to z, i.e.:
+%       \[
+%         avg(b(x_j)) \approx \sum_{m=1}^M b_h(m,j) polyval(Phi{m},x_j)
+%       \]
 % ul : Anonymous function describing the (Dirichlet) boundary condition at
 %      x_range(1).
 % E : M x M x M matrix where $E(k,m,n) = Expectation[\Phi_k \Phi_m \Phi_n]$,
@@ -40,11 +46,26 @@ function [u_h] = iburgers_wbsg(x_range, u0_h, ul, E, T, dx)
   f = @(u) u^2 / 2;
 
   a = x_range(1); b = x_range(2);
-  M = size(u0_h)(1);
+  [M, N] = size(u0_h);
+
+  B = zeros(M,M,N) %B(:,:,j) is B_j defined by (3.15)
+  for j=1:N
+    B(:, :, j) = build_Bj(E, b_h(:, j));
+  end
+
   u_h = u0_h;
   curr_t = 0.0;
+  temp = zeros( size(u_h) );
   while curr_t < T
-    % TODO: everything?
+    for j=2:N
+      Aj = build_Aj(E, u_h(:, j)); Ajm1 = build_Aj(E, u_h(:, j-1));
+
+      dt = dx^2 %TODO: Figure out how to choose this.
+      rhs = -( Aj*u_h(:,j) - Ajm1*u_h(:,j-1) ) / (2*dx);
+      rhs = rhs - ( B(:,:,j)-B(:,:,j-1) )*( u_h(:,j)+u_h(:,j-1) ) / (2*dx);
+      temp(:,j) = u_h + dt * rhs;
+    end
+    u_h = temp;
     curr_t = curr_t + dt;
   end
 end
