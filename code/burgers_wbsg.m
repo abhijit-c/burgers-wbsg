@@ -1,4 +1,4 @@
-function [u_h] = iburgers_wbsg(x_range, u0_h, b_h, ul, E, T, dx)
+function u_h = burgers_wbsg(x_range, u0_h, b_h, ul, E, T, dx)
 % burgers_wbsg.m solves the Burgers equation 
 % \[
 %   u_t(x,t,z) + f_x(u(x,t,z)) = -b'(x,z)u(x,t,z), (*)
@@ -43,12 +43,14 @@ function [u_h] = iburgers_wbsg(x_range, u0_h, b_h, ul, E, T, dx)
 % ------------------------------------------------------------------------------
 % Authors: Andrew Shedlock & Abhijit Chowdhary, @ North Carolina State.
 % Date  : 2022/04/14
+  
+% Do we need these variables? I don't think so but I leave it up to you
   f = @(u) u^2 / 2;
-
   a = x_range(1); b = x_range(2);
+  
+  
   [M, N] = size(u0_h);
-
-  B = zeros(M,M,N) %B(:,:,j) is B_j defined by (3.15)
+  B = zeros(M,M,N); %B(:,:,j) is B_j defined by (3.15)
   for j=1:N
     B(:, :, j) = build_Bj(E, b_h(:, j));
   end
@@ -57,13 +59,18 @@ function [u_h] = iburgers_wbsg(x_range, u0_h, b_h, ul, E, T, dx)
   curr_t = 0.0;
   temp = zeros( size(u_h) );
   while curr_t < T
+      % Updating the cell of each node
     for j=2:N
-      Aj = build_Aj(E, u_h(:, j)); Ajm1 = build_Aj(E, u_h(:, j-1));
+      Aj = build_Aj(E, u_h(:, j)); Aj_1 = build_Aj(E, u_h(:, j-1));
 
-      dt = dx^2 %TODO: Figure out how to choose this.
-      rhs = -( Aj*u_h(:,j) - Ajm1*u_h(:,j-1) ) / (2*dx);
+      %dt = dx^2 %TODO: Figure out how to choose this.
+      % from the paper, they took dt = 0.0025/8
+      dt = 0.0025/8;
+      
+      rhs = -( Aj*u_h(:,j) - Aj_1*u_h(:,j-1) ) / (2*dx);
       rhs = rhs - ( B(:,:,j)-B(:,:,j-1) )*( u_h(:,j)+u_h(:,j-1) ) / (2*dx);
-      temp(:,j) = u_h + dt * rhs;
+      % Updating the j column
+      temp(:,j) = u_h(:,j) + dt * rhs;
     end
     u_h = temp;
     curr_t = curr_t + dt;

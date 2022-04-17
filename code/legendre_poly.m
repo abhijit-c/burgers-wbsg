@@ -7,14 +7,14 @@ function pk = legendre_poly(n)
   if n==0 
     pk = 1;
   elseif n==1
-    pk = [1 0]';
+    pk = [sqrt(3) 0];
   else
-    pkm2 = zeros(n+1,1);
+    pkm2 = zeros(1,n+1);
     pkm2(n+1) = 1;
-    pkm1 = zeros(n+1,1);
+    pkm1 = zeros(1,n+1);
     pkm1(n) = 1;
     for k=2:n
-      pk = zeros(n+1,1);
+      pk = zeros(1,n+1);
       for e=n-k+1:2:n
         pk(e) = (2*k-1)*pkm1(e+1) + (1-k)*pkm2(e);
       end
@@ -25,4 +25,9 @@ function pk = legendre_poly(n)
         pkm1 = pk;
       end
     end
+    % Normalizing the eigenvectors
+    coeff=conv(pk,pk);
+    q=polyint(coeff);
+    a=0.5*diff(polyval(q,[-1 1])); a=sqrt(a);
+    pk=pk/a;
   end

@@ -1,4 +1,4 @@
-function E = build_E(x_range, Phi, mu)
+function E = build_E(Phi)
 % build_E.m constructs the 3D matrix where:
 % \[
 %   E(k,m,n) 
@@ -16,14 +16,26 @@ function E = build_E(x_range, Phi, mu)
 % ------------------------------------------------------------------------------
 % Authors: Andrew Shedlock & Abhijit Chowdhary, @ North Carolina State.
 % Date  : 2022/04/14
-  a = x_range(1); b = x_range(2);
-  M = length(Phi)
+
+  M = length(Phi);
   E = zeros(M,M,M);
   for k=1:M %Triple loop, but M is small so it's fine.
     for m=1:M
       for n=1:M
-        f = @(x) polyval(Phi{k},x)*polyval(Phi{m},x)*polyval(Phi{n},x)*mu(x);
-        E(k,m,n) = integrate(f, a, b);
+%           
+%         f = @(x) polyval(Phi{k},x)*polyval(Phi{m},x)*polyval(Phi{n},x)*mu(x);
+%         E(k,m,n) = integrate(f, a, b);
+            
+        % Alternative approach using polynomial properties and matlab
+        % functions
+        u=Phi{k}; v=Phi{m}; w=Phi{n};
+        coeff = conv(conv(u,v),w); 
+        q=polyint(coeff);
+        E(k,m,n) = 0.5*diff(polyval(q,[-1 1]));
+        
+        % Idea for this implementation came from
+        % https://www.mathworks.com/help/matlab/ref/polyint.html
+        % https://www.mathworks.com/help/matlab/ref/conv.html
       end
     end
   end
