@@ -29,9 +29,9 @@ function E = build_E(Phi)
         % Alternative approach using polynomial properties and matlab
         % functions
         u=Phi{k}; v=Phi{m}; w=Phi{n};
-        coeff = conv(conv(u,v),w); 
-        q=polyint(coeff);
-        E(k,m,n) = 0.5*diff(polyval(q,[-1 1]));
+        coeff = conv(conv(u,v),w);          % polynomial multiplication
+        q=0.5*polyint(coeff);
+        E(k,m,n) = diff(polyval(q,[-1 1]));
         
         % Idea for this implementation came from
         % https://www.mathworks.com/help/matlab/ref/polyint.html

@@ -1,4 +1,4 @@
-function u_h = burgers_wbsg(x_range, u0_h, b_h, ul, E, T, dx)
+function u_h = burgers_wbsg(x_range, u0_h, b_h, E, T, dx)
 % burgers_wbsg.m solves the Burgers equation 
 % \[
 %   u_t(x,t,z) + f_x(u(x,t,z)) = -b'(x,z)u(x,t,z), (*)
