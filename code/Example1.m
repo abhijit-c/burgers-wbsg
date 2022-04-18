@@ -41,10 +41,11 @@ b_h = [zeros(M,1) coefficients*bottom(x)];  % We need to add a column for
 
 
                                             
-%% Implementation                                            
-u_h = burgers_wbsg(x_range, u0_h, b_h, E, T, dx);
+%% Implementation
+u_wb = burgers_wbsg(u0_h, b_h, E, T, dx);       % WB      eq 3.14
+u_non = burgers_non_wbsg(u0_h, b_h, E, T, dx);  % Non WB  eq 3.21
 
-plot(x,u_h(1,2:end))
+plot(x,u_wb(1,2:end),x,u_non(1,2:end));
 
 %% Functions Used
 

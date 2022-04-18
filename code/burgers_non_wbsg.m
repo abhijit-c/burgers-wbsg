@@ -1,9 +1,9 @@
-function u_h = burgers_wbsg(u0_h, b_h, E, T, dx)
+function u_h = burgers_non_wbsg(u0_h, b_h, E, T, dx)
 % burgers_wbsg.m solves the Burgers equation 
 % \[
 %   u_t(x,t,z) + f_x(u(x,t,z)) = -b'(x,z)u(x,t,z), (*)
 %   u(x,0) = u0(x),
-%   u(0,t) = 2.
+%   u(0,t) = 2
 % \] 
 % in space (x) and time (t) given some source term $-b'(x,z)u(t,x)$ where $z$ is
 % some user specified random variable and $f(u) = u^2/2$. The random input is
@@ -16,6 +16,8 @@ function u_h = burgers_wbsg(u0_h, b_h, E, T, dx)
 % respect to the distribution zn obeys.
 % ------------------------------------------------------------------------------
 % Parameter List:
+% x_range : [x_range(1),x_range(2)] denotes the spatial domain to solve (*)
+%           over.
 % u0_h : M x N matrix where the jth column corresponds to the cell average of
 %        the initial condition over the jth spatial cell expanded out in the
 %        orthogonal polynomial basis corresponding to z, i.e.:
@@ -60,7 +62,7 @@ function u_h = burgers_wbsg(u0_h, b_h, E, T, dx)
       dt = 0.0025/8;
       
       rhs = -( Aj*u_h(:,j) - Aj_1*u_h(:,j-1) ) / (2*dx);
-      rhs = rhs - ( B(:,:,j)-B(:,:,j-1) )*( u_h(:,j)+u_h(:,j-1) ) / (2*dx);
+      rhs = rhs - ( B(:,:,j)-B(:,:,j-1) )*( u_h(:,j) ) / (dx);
       % Updating the j column
       temp(:,j) = u_h(:,j) + dt * rhs;
     end
@@ -89,3 +91,4 @@ function Bj = build_Bj(E, b_hj)
     end
   end
 end
+
