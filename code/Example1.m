@@ -1,15 +1,17 @@
+clear; clc; clf;
 %% Setting up the conditions we will need to implement
-cell_count = 200; dx = 10/cell_count; x_range=[0,10]; T=10;
+cell_count = 100; dx = 10/cell_count; x_range=[0,10]; T=10; M =5;
+x=0.5*dx:dx:10-0.5*dx;
 
-% building the matrix E
-Phi=cell(5,1);
-Phi{1}=legendre_poly(0);
-Phi{2}=legendre_poly(1);
-Phi{3}=legendre_poly(2);
-Phi{4}=legendre_poly(3);
-Phi{5}=legendre_poly(4);
-E = build_E(Phi); M=length(Phi);
 
+%% Building the matrix E
+Phi=cell(M,1);
+for j=1:M
+   Phi{j}=legendre_poly(j-1);
+end
+E = build_E(Phi);
+
+%% Building u0_h
 
 % Our initial condition is u0 = 0 so coefficient functions should be
 % uniformly 0 with the exception of the boundary condition
@@ -21,6 +23,7 @@ u0_h = zeros(M,cell_count+1);
 u0_h(1,1) = 2;
 
 
+%% Building b_h
 
 % We now construct the bottom topography function. The bottom topography
 % can be written as (2+z)*bottom(x) where bottom is the function defined
@@ -36,9 +39,12 @@ b_h = [zeros(M,1) coefficients*bottom(x)];  % We need to add a column for
                                             % the left boundary condition 
                                             % which happens to be just zeros
 
+
+                                            
+%% Implementation                                            
 u_h = burgers_wbsg(x_range, u0_h, b_h, E, T, dx);
 
-
+plot(x,u_h(1,2:end))
 
 %% Functions Used
 

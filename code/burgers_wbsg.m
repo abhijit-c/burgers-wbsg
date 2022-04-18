@@ -50,7 +50,7 @@ function u_h = burgers_wbsg(x_range, u0_h, b_h, E, T, dx)
   
   
   [M, N] = size(u0_h);
-  B = zeros(M,M,N); %B(:,:,j) is B_j defined by (3.15)
+  B = zeros(M,M,N);       %B(:,:,j) is B_j defined by (3.15)
   for j=1:N
     B(:, :, j) = build_Bj(E, b_h(:, j));
   end
@@ -72,7 +72,8 @@ function u_h = burgers_wbsg(x_range, u0_h, b_h, E, T, dx)
       % Updating the j column
       temp(:,j) = u_h(:,j) + dt * rhs;
     end
-    u_h = temp;
+    u_h(:,2:end) = temp(:,2:end);   % first column which corresponds to 
+                                    % cell 0 should remain constant
     curr_t = curr_t + dt;
   end
 end
