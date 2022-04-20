@@ -133,7 +133,7 @@ sorting=ynt
         u_j^n = \frac{1}{\Delta x} \int_{x_{j-1/2}}^{x_{j+1/2}} u(x,t^n) \dd{x}
     \end{equation*}
     \pause
-    and construct the semi-discrete scheme proposed in \cite{Jin2001}:
+    and construct the semi-discrete interface method proposed in \cite{Jin2001}:
     \begin{equation}
         \partial_t u_j + \frac{f_{j+1/2} - f_{j-1/2}}{\Delta x} = - \frac{b_{j+1/2} - b_{j-1/2}}{\Delta x} \frac{q_{j+1/2} + q_{j-1/2}}{2}
     \end{equation}
@@ -201,6 +201,100 @@ sorting=ynt
 %%% Stochastic WB scheme for Burgers
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{A WBSG scheme for Burgers' equation}
+
+\begin{frame}{Burgers' equation}
+    Consider Burgers' equation with a random source term
+    \begin{equation}
+        \partial_t u + \partial_x \left( \frac{u^2}{2} \right) = -b'(x,z) u
+    \end{equation}
+    \pause
+    We apply the interface method to find
+    \begin{equation} \label{eq:burgers_inteface}
+        \partial_t u_j + \frac{u_j^2 - u_{j-1}^2}{2 \Delta x} = -\frac{b_j - b_{j-1}}{\Delta x} \frac{u_j + u_{j-1}}{2}
+    \end{equation}
+    where we've applied an upwind flux assuming $u > 0$ for brevity.
+\end{frame}
+
+\begin{frame}{sWB Burgers}
+    Replacing $u_j$ and $b_j$ with their gPC approximation and taking an expectation of \eqref{eq:burgers_inteface}, we find:
+    \begin{multline*}
+        \mathbb{E}\left[
+            \left(
+                \pdv{}{t} u_{N,j} + \frac{u_{N,j}^2-u_{N,j-1}^2}{2\Delta x}
+            \right) \Phi_m(z)
+        \right] \\
+        = -\mathbb{E} \left[
+            \frac{b_{N,j} - b_{N,j-1}}{\Delta x} \frac{u_{N,j} - u_{N,j-1}}{2} \Phi_m(z)
+        \right]
+    \end{multline*}
+    \pause
+    Finally, substitute in the gPC expansions and and use orthonormality to find:
+\end{frame}
+
+\begin{frame}{sWB Burgers Full Scheme}
+   \begin{equation}
+       \partial_t \hat{\vb{u}}_j + \frac{\vb{A}_j \hat{\vb{u}}_j - \vb{A}_{j-1} \hat{\vb{u}}_{j-1}}{2\Delta x} = -\frac{(\vb{B}_j - \vb{B}_{j-1})(\hat{\vb{u}}_j + \hat{\vb{u}}_{j-1})}{2\Delta x}
+   \end{equation} 
+   where:
+   \begin{equation*}
+       \hat{\vb{u}} &= (\hat{u}_1, \dots, \hat{u}_M)^\mathrm{T}
+       \qquad
+       \hat{\vb{b}} &= (\hat{b}_1, \dots, \hat{b}_M)^\mathrm{T}
+   \end{equation*}
+   \begin{align*}
+       [\vb{A}_j]_{mn} &= \mathbb{E}[u_{N,j} \Phi_m \Phi_n] = \sum_{k=1}^M \hat{u}_{k,j} e_{kmn} \\
+       [\vb{B}_j]_{mn} &= \mathbb{E}[b_{N,j} \Phi_m \Phi_n] = \sum_{k=1}^M \hat{b}_{k,j} e_{kmn}
+   \end{align*}
+   with $e_{kmn} &= \mathbb{E}[\Phi_k \Phi_m \Phi_n]$.
+\end{frame}
+
+\begin{frame}
+    Our scheme:
+   \begin{equation*}
+       \partial_t \hat{\vb{u}}_j + \frac{\vb{A}_j \hat{\vb{u}}_j - \vb{A}_{j-1} \hat{\vb{u}}_{j-1}}{2\Delta x} = -\frac{(\vb{B}_j - \vb{B}_{j-1})(\hat{\vb{u}}_j + \hat{\vb{u}}_{j-1})}{2\Delta x}
+   \end{equation*} 
+   reduces to
+   \begin{equation*}
+       \frac{\vb{A}_j \hat{\vb{u}}_j - \vb{A}_{j-1} \hat{\vb{u}}_{j-1}}{2\Delta x} + \frac{(\vb{B}_j - \vb{B}_{j-1})(\hat{\vb{u}}_j + \hat{\vb{u}}_{j-1})}{2\Delta x} = 0
+   \end{equation*} 
+   in the steady state case. The proof that this is WB follows from the earlier one in the deterministic case.
+\end{frame}
+
+\begin{frame}{An alternative flux}
+    Likewise, with flux $f(u) = u^4 / 2$ we can derive a similar method:
+   \begin{equation}
+       \partial_t \hat{\vb{u}}_j + \frac{\vb{S}_j \hat{\vb{u}}_j - \vb{S}_{j-1} \hat{\vb{u}}_{j-1}}{4\Delta x} = -\frac{(\vb{B}_j - \vb{B}_{j-1})(\hat{\vb{u}}_j + \hat{\vb{u}}_{j-1})}{2\Delta x}
+   \end{equation} 
+   where:
+   \begin{equation*}
+       \hat{\vb{u}} &= (\hat{u}_1, \dots, \hat{u}_M)^\mathrm{T}
+       \qquad
+       \hat{\vb{b}} &= (\hat{b}_1, \dots, \hat{b}_M)^\mathrm{T}
+   \end{equation*}
+   \begin{align*}
+       [\vb{S}_j]_{mn} &= \mathbb{E}[u_{N,j}^3 \Phi_m \Phi_n]  = \sum_{p,q,r}^M \hat{u}_{p,j} \hat{u}_{q,j} \hat{u}_{r,j} d_{pqrmn}\\
+       [\vb{B}_j]_{mn} &= \mathbb{E}[b_{N,j} \Phi_m \Phi_n] = \sum_{k=1}^M \hat{b}_{k,j} e_{kmn}
+   \end{align*}
+   with $e_{kmn} = \mathbb{E}[\Phi_k \Phi_m \Phi_n]$ and $d_{pqrmn} = \mathbb{E}[\Phi_p \Phi_q \Phi_r \Phi_m \Phi_n]$. (Agony)
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Numerical Considerations
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Numerical Considerations}
+\begin{frame}[<+->]{Numerical Considerations}
+   \begin{equation*}
+       \partial_t \hat{\vb{u}}_j + \frac{\vb{A}_j \hat{\vb{u}}_j - \vb{A}_{j-1} \hat{\vb{u}}_{j-1}}{2\Delta x} = -\frac{(\vb{B}_j - \vb{B}_{j-1})(\hat{\vb{u}}_j + \hat{\vb{u}}_{j-1})}{2\Delta x}
+   \end{equation*} 
+   There are a couple of points to note regarding this scheme:
+   \begin{itemize}
+       \item $\hat{u}$ has $N_x \times M$ entries;
+       \item $\vb{B}$ is constant in time $\implies$ can be computed before time evolution
+       \item $\vb{A}$ depends on time $\implies$ must be computed per time step.
+       \item $\vb{A}_j$ and $\vb{B}_j$ are symmetric.
+   \end{itemize}
+   Based on profiling, the computation of $\vb{A}$ dominates runtime.
+\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Results
