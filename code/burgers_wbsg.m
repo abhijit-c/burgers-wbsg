@@ -52,17 +52,19 @@ function u_h = burgers_wbsg(u0_h, b_h, E, T, dx)
   temp = zeros( size(u_h) );
   while curr_t < T
       % Updating the cell of each node
+    Aj_prev =build_Aj(E, u_h(:, 1));
     for j=2:N
-      Aj = build_Aj(E, u_h(:, j)); Aj_1 = build_Aj(E, u_h(:, j-1));
+      Aj = build_Aj(E, u_h(:, j));
 
       %dt = dx^2 %TODO: Figure out how to choose this.
       % from the paper, they took dt = 0.0025/8
       dt = 0.0025/8;
       
-      rhs = -( Aj*u_h(:,j) - Aj_1*u_h(:,j-1) ) / (2*dx);
+      rhs = -( Aj*u_h(:,j) - Aj_prev*u_h(:,j-1) ) / (2*dx);
       rhs = rhs - ( B(:,:,j)-B(:,:,j-1) )*( u_h(:,j)+u_h(:,j-1) ) / (2*dx);
       % Updating the j column
       temp(:,j) = u_h(:,j) + dt * rhs;
+      Aj_prev = Aj;
     end
     u_h(:,2:end) = temp(:,2:end);   % first column which corresponds to 
                                     % cell 0 should remain constant
@@ -74,8 +76,9 @@ function Aj = build_Aj(E, u_hj)
   M = length(E);
   Aj = zeros(M, M);
   for m=1:M
-    for n=1:M
+    for n=m:M
       Aj(m,n) = u_hj' * E(:,m,n);
+      Aj(n,m) = Aj(m,n);
     end
   end
 end
