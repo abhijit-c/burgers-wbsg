@@ -1,0 +1,84 @@
+% --------------------------------------------------------------
+% Abhi's Standard math Preamble.
+% --------------------------------------------------------------
+ 
+% Document packages / layout
+\documentclass[
+    pdf,
+    11pt,
+    xcolor={svgnames},
+    %hyperref={colorlinks, citecolor=Cyan, linkcolor=Cyan, urlcolor=Cyan}
+  ]{beamer}
+%\usetheme{Copenhagen}
+\usetheme{Madrid}
+\usecolortheme{beaver}
+\usepackage{color}
+
+% Figure Packages
+\usepackage{float}
+\usepackage{subcaption}
+
+% Math Packages
+\usepackage{amsmath,amsthm,amssymb,mathrsfs,bm}
+\usepackage{commath}
+
+% Quality of Life Packages
+\usepackage{enumerate}
+\usepackage{siunitx} %\sisetup{inter-unit-product =$\cdot$}
+\usepackage{multicol}
+
+\newtheorem*{lemma*}{Lemma}
+\newtheorem*{theorem*}{Theorem}
+
+% Creates section subdivider at beginning of each section.
+\AtBeginSection[]
+{
+  \begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+ 
+\title[%
+  WBSG for Random Scalar Hyperbolic Laws
+]{%
+  A Well-Balanced Stochastic Galerkin for Scalar Hyperbolic Laws with Random
+  Forcing.
+}
+\author[Chowdhary, Shedlock]{%
+  Andrew Shedlock and Abhijit Chowdhary
+}
+\institute[NCSU]{
+  Department of Mathematics \\
+  North Carolina State University
+}
+\date[MA788 NCSU]{\today}
+
+\begin{document}
+ 
+\begin{frame}
+  \frametitle{Table of Contents}
+  \tableofcontents
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Introduction and Goals
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction and Goals}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Introduction of Model Problem
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction of Model Problem}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Results
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Results}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Discussion and Future Work
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Discussion and Improvements}
+
+\end{document}
