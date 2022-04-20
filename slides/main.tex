@@ -1,7 +1,3 @@
-% --------------------------------------------------------------
-% Abhi's Standard math Preamble.
-% --------------------------------------------------------------
- 
 % Document packages / layout
 \documentclass[
     pdf,
@@ -14,6 +10,13 @@
 \usecolortheme{beaver}
 \usepackage{color}
 
+\usepackage[
+backend=biber,
+style=alphabetic,
+sorting=ynt
+]{biblatex}
+\addbibresource{ref.bib}
+
 % Figure Packages
 \usepackage{float}
 \usepackage{subcaption}
@@ -21,14 +24,16 @@
 % Math Packages
 \usepackage{amsmath,amsthm,amssymb,mathrsfs,bm}
 \usepackage{commath}
+\usepackage{physics}
 
 % Quality of Life Packages
 \usepackage{enumerate}
 \usepackage{siunitx} %\sisetup{inter-unit-product =$\cdot$}
 \usepackage{multicol}
+\usepackage{wrapfig}
+\usepackage{graphicx}
 
-\newtheorem*{lemma*}{Lemma}
-\newtheorem*{theorem*}{Theorem}
+\newtheorem*{definition}{Definition}
 
 % Creates section subdivider at beginning of each section.
 \AtBeginSection[]
@@ -39,11 +44,8 @@
   \end{frame}
 }
  
-\title[%
-  WBSG for Random Scalar Hyperbolic Laws
-]{%
-  A Well-Balanced Stochastic Galerkin for Scalar Hyperbolic Laws with Random
-  Forcing.
+\title[WBSG for Random Scalar Hyperbolic Laws]{%
+  A Well-Balanced Stochastic Galerkin for Scalar Hyperbolic Laws with Random Forcing.
 }
 \author[Chowdhary, Shedlock]{%
   Andrew Shedlock and Abhijit Chowdhary
@@ -55,21 +57,150 @@
 \date[MA788 NCSU]{\today}
 
 \begin{document}
- 
+
+\frame{ \titlepage }
+
 \begin{frame}
-  \frametitle{Table of Contents}
-  \tableofcontents
+\begin{figure}
+\centering
+\includegraphics[width=0.75\textwidth]{slides/bottom_topography.jpg}
+\caption{From \cite{Trossman2017}}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Problems}
+    \begin{columns}
+    \begin{column}{0.5\textwidth}
+    If the given bottom topography given was our source term, we would have:
+    \begin{itemize}
+        \item Uncertainty in measurement
+        \item Low regularity
+    \end{itemize}
+    The former can have a non-negligible effect on simulation and the latter can pose difficulties in capturing the true steady state solution.
+    \end{column}
+    \begin{column}{0.5\textwidth}
+        \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{slides/bottom_topography.jpg}
+        \end{figure}
+    \end{column}
+    \end{columns}
+    \pause
+    {\bf Idea:} Combine previous ideas for stochastic Galerkin via generalized polynomial chaos and well-balanced interface methods \cite{Jin2015}.
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Introduction and Goals
+%%% Preliminaries
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Introduction and Goals}
+\section{Preliminaries}
+
+\begin{frame}{Model Problem}
+    Given the scalar conservation law with source term:
+    \begin{equation} \label{eq:model}
+        \partial_t u + \partial_x f(u) = -b'(x) q(u).
+    \end{equation}
+    we have the steady-state equation
+    \begin{equation} \label{eq:model_ss}
+         \partial_x f(u) + -b'(x) q(u) = 0.
+    \end{equation}
+    which, supposing a smooth solution, can be written into:
+    \begin{equation} \label{eq:ss_condition}
+        \begin{cases}
+            D(u(z)) + b(x) = {\rm constant}. \\
+            D(u) = \int_0^u \frac{f'(u)}{q(u)} \dd{s}
+        \end{cases}
+    \end{equation}
+    which we call the steady-state condition.
+\end{frame}
+
+\subsection{A Well-Balanced Deterministic Scheme}
+\begin{frame}{A Well-Balanced Numerical Scheme}
+    \begin{definition}
+        A numerical scheme is called well-balanced (WB) if it can preserve the steady-state condition \eqref{eq:ss_condition} either exactly, or formally with at least second order accuracy.
+    \end{definition}
+\end{frame}
+
+\begin{frame}{FVM Framework}
+    Consider the uniform discretization:
+    \begin{itemize}
+        \item $(x_{j+1/2})_{j=1}^{N_x}$ with $\Delta x = x_{j+1/2}-x_{j-1/2}$;
+        \item $(t_n)_{n=1}^{N_t}$ with $\Delta t = t^n - t^{n-1}$.
+    \end{itemize}
+    \pause
+    Define:
+    \begin{equation*}
+        u_j^n = \frac{1}{\Delta x} \int_{x_{j-1/2}}^{x_{j+1/2}} u(x,t^n) \dd{x}
+    \end{equation*}
+    \pause
+    and construct the semi-discrete scheme proposed in \cite{Jin2001}:
+    \begin{equation}
+        \partial_t u_j + \frac{f_{j+1/2} - f_{j-1/2}}{\Delta x} = - \frac{b_{j+1/2} - b_{j-1/2}}{\Delta x} \frac{q_{j+1/2} + q_{j-1/2}}{2}
+    \end{equation}
+    \pause
+    or if $D(u)$ is monotone
+    \begin{equation} \label{eq:deterministic_scheme}
+        \partial_t u_j + \frac{f_{j+1/2} - f_{j-1/2}}{\Delta x} = - \frac{b_{j+1/2} - b_{j-1/2}}{\Delta x} \frac{f_{j+1/2} + f_{j-1/2}}{D_{j+1/2}-D_{j-1/2}}
+    \end{equation}
+\end{frame}
+
+% Pause is broken in align 
+% https://tex.stackexchange.com/questions/6348/problem-with-beamers-pause-in-alignments
+\begin{frame}
+    Hence, considering the steady state solution:
+    \begin{align*}
+        & 
+        \frac{f_{j+1/2} - f_{j-1/2}}{\Delta x} + \frac{b_{j+1/2} - b_{j-1/2}}{\Delta x} \frac{f_{j+1/2} + f_{j-1/2}}{D_{j+1/2}-D_{j-1/2}} = 0
+    \end{align*}
+\end{frame}
+\begin{frame}
+    Hence, considering the steady state solution:
+    \begin{align*}
+        & 
+        \frac{f_{j+1/2} - f_{j-1/2}}{\Delta x} + \frac{b_{j+1/2} - b_{j-1/2}}{\Delta x} \frac{f_{j+1/2} + f_{j-1/2}}{D_{j+1/2}-D_{j-1/2}} = 0 \\
+        \implies\ 
+        &
+        D_{j+1/2} - D_{j-1/2} + b_{j+1/2} - b_{j-1/2} = 0
+    \end{align*}
+\end{frame}
+\begin{frame}
+    Hence, considering the steady state solution:
+    \begin{align*}
+        & 
+        \frac{f_{j+1/2} - f_{j-1/2}}{\Delta x} + \frac{b_{j+1/2} - b_{j-1/2}}{\Delta x} \frac{f_{j+1/2} + f_{j-1/2}}{D_{j+1/2}-D_{j-1/2}} = 0 \\
+        \implies\ 
+        &
+        D_{j+1/2} - D_{j-1/2} + b_{j+1/2} - b_{j-1/2} = 0 \\
+        \implies\ 
+        &
+        D_{j+1/2} + b_{j+1/2} = {\rm constant}
+    \end{align*}
+    Thus, the steady state condition \eqref{eq:ss_condition} is preserved exactly at the cell interface.
+\end{frame}
+
+\subsection{gPC approximation and stochastic Galerkin}
+\begin{frame}{Introduction to stochastic Galerkin via gPC}
+    Consider a general SDE with random inputs:
+    \begin{equation} \label{eq:SDE}
+        \partial_t u = \mathcal{L}(t,x,u,z;b(x,z))
+    \end{equation}
+    where, for convenience, let $z \in I_z \subset \mathbb{R}$ parameterize the random input.
+    
+    \pause
+    
+    Let $\mathbb{P}_N$ denote the space of orthonormal polynomials of degree up to $N$. Call
+    \begin{align*}
+        u(x,t,z) &= u_N(x,t,z) = \sum_{m=1}^M \hat{u}_m(t,x) \Phi_m(z) \\
+        b(x,z) &= u_N(x,z) = \sum_{m=1}^M \hat{b}_m(t,x) \Phi_m(z) 
+    \end{align*}
+    the gPC expansions of the associated variables, where $(\Phi_m)_{m=1}^M \subset \mathbb{P}_N$ is typically chosen based on the distribution of $z$ in order to guarantee faster coefficient convergence.
+\end{frame}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Introduction of Model Problem
+%%% Stochastic WB scheme for Burgers
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Introduction of Model Problem}
+\section{A WBSG scheme for Burgers' equation}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Results
@@ -80,5 +211,12 @@
 %%% Discussion and Future Work
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Discussion and Improvements}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% References
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{References}
+\printbibliography
+\end{frame}
 
 \end{document}
