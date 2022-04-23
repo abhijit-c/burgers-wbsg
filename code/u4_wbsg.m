@@ -52,17 +52,16 @@ function u_h = u4_wbsg(u0_h, b_h, E, T, dx)
   temp = zeros( size(u_h) );
   while curr_t < T
       % Updating the cell of each node
-    Aj_prev =build_Aj(E, u_h(:, 1));
+    Sj_prev =build_Sj(E, u_h(:, 1));
     for j=2:N
-      Aj = build_Aj(E, u_h(:, j));
-
+      Sj = build_Sj(E, u_h(:, j));
       dt = 0.0025/8;
       
-      rhs = -( Aj*u_h(:,j) - Aj_prev*u_h(:,j-1) ) / (4*dx);
+      rhs = -( Sj*u_h(:,j) - Sj_prev*u_h(:,j-1) ) / (4*dx);
       rhs = rhs - ( B(:,:,j)-B(:,:,j-1) )*( u_h(:,j)+u_h(:,j-1) ) / (2*dx);
       % Updating the j column
       temp(:,j) = u_h(:,j) + dt * rhs;
-      Aj_prev = Aj;
+      Sj_prev = Sj;
     end
     u_h(:,2:end) = temp(:,2:end);   % first column which corresponds to 
                                     % cell 0 should remain constant
@@ -70,13 +69,21 @@ function u_h = u4_wbsg(u0_h, b_h, E, T, dx)
   end
 end
 
-function Aj = build_Aj(E, u_hj)
+function Sj = build_Sj(E, u_hj)
   M = length(E);
-  Aj = zeros(M, M);
-  for m=1:M
-    for n=m:M
-      Aj(m,n) = u_hj' * E(:,m,n);
-      Aj(n,m) = Aj(m,n);
+  Sj = zeros(M, M);
+  for p=1:M
+    for q=p:M
+        s=0;
+        for l=1:M
+           for m=1:M
+              for n=1:M
+                s = s + u_hj(l)*u_hj(m)*u_hj(n)*E(l,m,n,p,q);
+              end
+           end
+        end
+        Sj(p,q) = s;
+        Sj(q,p) = s;
     end
   end
 end
@@ -86,7 +93,7 @@ function Bj = build_Bj(E, b_hj)
   Bj = zeros(M, M);
   for m=1:M
     for n=1:M
-      Bj(m,n) = b_hj' * E(:,m,n);
+      Bj(m,n) = b_hj' * E(:,m,n,1,1);
     end
   end
 end

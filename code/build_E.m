@@ -22,12 +22,6 @@ function E = build_E(Phi)
   for k=1:M %Triple loop, but M is small so it's fine.
     for m=1:M
       for n=1:M
-%           
-%         f = @(x) polyval(Phi{k},x)*polyval(Phi{m},x)*polyval(Phi{n},x)*mu(x);
-%         E(k,m,n) = integrate(f, a, b);
-            
-        % Alternative approach using polynomial properties and matlab
-        % functions
         u=Phi{k}; v=Phi{m}; w=Phi{n};
         coeff = conv(conv(u,v),w);          % polynomial multiplication
         q=0.5*polyint(coeff);
