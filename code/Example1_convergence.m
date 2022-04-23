@@ -2,7 +2,7 @@
 
 
 %% Showing convergence for Example 1
-N=1:4; cells=[100, 200, 400]; x_range=[0,10]; T=15;
+N=1:4; cells=[100, 200, 400]; x_range=[0,10]; T=10;
 mean_err = zeros(length(cells),length(N));
 sd_err = zeros(length(cells),length(N));
 
@@ -62,5 +62,5 @@ end
 function e = err(actual,approx)
     cell_count=length(actual);
     dx = 10/cell_count;
-    e=dx*norm(actual-approx);
+    e=dx*norm(actual-approx,1);
 end
