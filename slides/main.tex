@@ -10,12 +10,19 @@
 \usecolortheme{beaver}
 \usepackage{color}
 
-\usepackage[
-backend=biber,
-style=alphabetic,
-sorting=ynt
-]{biblatex}
-\addbibresource{ref.bib}
+\usepackage[style=alphabetic]{biblatex}
+\addbibresource{citations.bib}
+
+% Remove navigation controls
+\setbeamertemplate{navigation symbols}{}
+
+% Un-numbered footnote
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{\scriptsize #1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
 
 % Figure Packages
 \usepackage{float}
@@ -33,7 +40,7 @@ sorting=ynt
 \usepackage{wrapfig}
 \usepackage{graphicx}
 
-\newtheorem*{definition}{Definition}
+%\newtheorem*{definition}{Definition}
 
 % Creates section subdivider at beginning of each section.
 \AtBeginSection[]
@@ -63,16 +70,17 @@ sorting=ynt
 \begin{frame}
 \begin{figure}
 \centering
-\includegraphics[width=0.75\textwidth]{slides/bottom_topography.jpg}
-\caption{From \cite{Trossman2017}}
+\includegraphics[width=0.70\textwidth]{slides/bottom_topography.jpg}
 \end{figure}
+\blfootnote{\fullcite{Trossman2017}}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Problems}
+    \frametitle{Difficulties in real-world simulation}
     \begin{columns}
     \begin{column}{0.5\textwidth}
     If the given bottom topography given was our source term, we would have:
+    \vspace{-1em}
     \begin{itemize}
         \item Uncertainty in measurement
         \item Low regularity
@@ -86,8 +94,8 @@ sorting=ynt
         \end{figure}
     \end{column}
     \end{columns}
-    \pause
-    {\bf Idea:} Combine previous ideas for stochastic Galerkin via generalized polynomial chaos and well-balanced interface methods \cite{Jin2015}.
+    {\bf Idea:} Combine previous ideas for stochastic Galerkin via generalized polynomial chaos and well-balanced interface methods.
+    \blfootnote{\fullcite{Jin2015}}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -237,15 +245,15 @@ sorting=ynt
    \end{equation} 
    where:
    \begin{equation*}
-       \hat{\vb{u}} &= (\hat{u}_1, \dots, \hat{u}_M)^\mathrm{T}
+       \hat{\vb{u}} = (\hat{u}_1, \dots, \hat{u}_M)^\mathrm{T}
        \qquad
-       \hat{\vb{b}} &= (\hat{b}_1, \dots, \hat{b}_M)^\mathrm{T}
+       \hat{\vb{b}} = (\hat{b}_1, \dots, \hat{b}_M)^\mathrm{T}
    \end{equation*}
    \begin{align*}
        [\vb{A}_j]_{mn} &= \mathbb{E}[u_{N,j} \Phi_m \Phi_n] = \sum_{k=1}^M \hat{u}_{k,j} e_{kmn} \\
        [\vb{B}_j]_{mn} &= \mathbb{E}[b_{N,j} \Phi_m \Phi_n] = \sum_{k=1}^M \hat{b}_{k,j} e_{kmn}
    \end{align*}
-   with $e_{kmn} &= \mathbb{E}[\Phi_k \Phi_m \Phi_n]$.
+   with $e_{kmn} = \mathbb{E}[\Phi_k \Phi_m \Phi_n]$.
 \end{frame}
 
 \begin{frame}
@@ -267,9 +275,9 @@ sorting=ynt
    \end{equation} 
    where:
    \begin{equation*}
-       \hat{\vb{u}} &= (\hat{u}_1, \dots, \hat{u}_M)^\mathrm{T}
+       \hat{\vb{u}} = (\hat{u}_1, \dots, \hat{u}_M)^\mathrm{T}
        \qquad
-       \hat{\vb{b}} &= (\hat{b}_1, \dots, \hat{b}_M)^\mathrm{T}
+       \hat{\vb{b}} = (\hat{b}_1, \dots, \hat{b}_M)^\mathrm{T}
    \end{equation*}
    \begin{align*}
        [\vb{S}_j]_{mn} &= \mathbb{E}[u_{N,j}^3 \Phi_m \Phi_n]  = \sum_{p,q,r}^M \hat{u}_{p,j} \hat{u}_{q,j} \hat{u}_{r,j} d_{pqrmn}\\
@@ -282,12 +290,12 @@ sorting=ynt
 %%% Numerical Considerations
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Numerical Considerations}
-\begin{frame}[<+->]{Numerical Considerations}
+\begin{frame}{Numerical Considerations}
    \begin{equation*}
        \partial_t \hat{\vb{u}}_j + \frac{\vb{A}_j \hat{\vb{u}}_j - \vb{A}_{j-1} \hat{\vb{u}}_{j-1}}{2\Delta x} = -\frac{(\vb{B}_j - \vb{B}_{j-1})(\hat{\vb{u}}_j + \hat{\vb{u}}_{j-1})}{2\Delta x}
    \end{equation*} 
    There are a couple of points to note regarding this scheme:
-   \begin{itemize}
+   \begin{itemize}[<+->]
        \item $\hat{u}$ has $N_x \times M$ entries;
        \item $\vb{B}$ is constant in time $\implies$ can be computed before time evolution
        \item $\vb{A}$ depends on time $\implies$ must be computed per time step.
@@ -300,6 +308,57 @@ sorting=ynt
 %%% Results
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results}
+\begin{frame}{Mean: Why well-balanced matters}
+    \begin{figure}
+    \centering
+    \includegraphics[width=0.85\textwidth]{./Figures/burgers_wb_mean}
+    \end{figure}
+\end{frame}
+\begin{frame}{Mean: Why well-balanced matters}
+    \begin{figure}
+    \centering
+    \includegraphics[width=0.85\textwidth]{./Figures/burgers_non_mean}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Standard Deviation: Why well-balanced matters}
+    \begin{figure}
+    \centering
+    \includegraphics[width=0.85\textwidth]{./Figures/burgers_wb_sd}
+    \end{figure}
+\end{frame}
+\begin{frame}{Standard Deviation: Why well-balanced matters}
+    \begin{figure}
+    \centering
+    \includegraphics[width=0.85\textwidth]{./Figures/burgers_non_sd}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Mean: Discontinuous bottom topography}
+    \begin{figure}
+    \centering
+    \includegraphics[width=0.85\textwidth]{./Figures/burgers_dis_wb_mean}
+    \end{figure}
+\end{frame}
+\begin{frame}{Mean: Discontinuous bottom topography}
+    \begin{figure}
+    \centering
+    \includegraphics[width=0.85\textwidth]{./Figures/burgers_dis_non_mean}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Standard Deviation: Discontinuous bottom topography}
+    \begin{figure}
+    \centering
+    \includegraphics[width=0.85\textwidth]{./Figures/burgers_dis_wb_sd}
+    \end{figure}
+\end{frame}
+\begin{frame}{Standard Deviation: Discontinuous bottom topography}
+    \begin{figure}
+    \centering
+    \includegraphics[width=0.85\textwidth]{./Figures/burgers_dis_non_sd}
+    \end{figure}
+\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Discussion and Future Work
