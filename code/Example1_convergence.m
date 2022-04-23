@@ -1,8 +1,8 @@
-clc; clear; clf
+%clc; clear; clf
 
 
 %% Showing convergence for Example 1
-N=1:5; cells=[100, 200, 400]; x_range=[0,10]; T=10;
+N=1:4; cells=[100, 200, 400]; x_range=[0,10]; T=15;
 mean_err = zeros(length(cells),length(N));
 sd_err = zeros(length(cells),length(N));
 
