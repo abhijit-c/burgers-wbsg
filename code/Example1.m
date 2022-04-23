@@ -1,6 +1,6 @@
 clear; clc; clf;
 %% Setting up the conditions we will need to implement
-cell_count = 100; dx = 10/cell_count; x_range=[0,10]; T=10; M =4;
+cell_count = 100; dx = 10/cell_count; x_range=[0,10]; T=10; M=5;
 x=0.5*dx:dx:10-0.5*dx;
 
 
@@ -38,7 +38,6 @@ b = bottom(x);
 b_h = [zeros(M,1) coefficients*b];  % We need to add a column for 
                                             % the left boundary condition 
                                             % which happens to be just zeros
-
 
 steady_mean = 2-2*b;
 steady_sd   = abs(b)/sqrt(3);
@@ -86,7 +85,7 @@ ax = gca; ax.FontSize = 18;
 
 %% Functions Used
 
-% Has to be called one time for each instance of random variable
+% Bottom topography function
 function b = bottom(x)
     b=zeros(size(x)); N=length(x);
     for j=1:N
