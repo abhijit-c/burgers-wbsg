@@ -1,0 +1,73 @@
+% --------------------------------------------------------------
+% Abhi's Standard math Preamble.
+% --------------------------------------------------------------
+
+% Beauty Packages
+\usepackage[margin=1in]{geometry} %1 inch margins
+\usepackage{color}
+\usepackage{microtype}
+
+%% Linking Packages
+\PassOptionsToPackage{hyphens}{url}
+%\usepackage[plainpages=false, colorlinks=true, allcolors=red]{hyperref}
+\usepackage[plainpages=false, allcolors=red]{hyperref}
+
+% Math Packages
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{commath} %for \norm and \abs
+\usepackage{bm}
+\usepackage{dsfont}
+\usepackage{mathtools}
+\usepackage{mathrsfs}
+\usepackage{physics}
+\usepackage{stmaryrd}
+\usepackage{xfrac}
+\allowdisplaybreaks
+
+% Quality of Life Packages
+\usepackage{enumitem} %styles of enumeration
+\usepackage{ulem} %strikethrough
+\usepackage{pgffor}
+\usepackage{booktabs} %Better quality tables
+\usepackage{float} %H option for figures
+
+% Bibliography Packages
+\usepackage[backend=biber, style=alphabetic]{biblatex}
+\addbibresource{citations.bib}
+\usepackage{breakcites}
+
+% Aliases and Package Settings
+%% Operator aliases
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\mb}[1]{\mathbb{#1}}
+%% Set aliases
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+%% analysis aliases
+\newcommand{\e}{\varepsilon}
+\DeclarePairedDelimiterX{\inp}[2]{\langle}{\rangle}{#1, #2}
+%% Matrix aliases
+\newcommand{\T}{\mathrm{T}}
+\renewcommand{\vec}[1]{{\mathchoice
+                     {\mbox{\boldmath$\displaystyle{#1}$}}
+                     {\mbox{\boldmath$\textstyle{#1}$}}
+                     {\mbox{\boldmath$\scriptstyle{#1}$}}
+                     {\mbox{\boldmath$\scriptscriptstyle{#1}$}}}}
+\newcommand{\mat}[1]{\mathbf{{#1}}}
+% Chertock aliases
+\newcommand*\xbar[1]{%
+  \hbox{%
+    \vbox{%
+      \hrule height 0.5pt % The actual bar
+      \kern0.15em%         % Distance between bar and symbol
+      \hbox{%
+        \kern-0.1em%      % Shortening on the left side
+        \ensuremath{#1}%
+        \kern-0.0em%      % Shortening on the right side
+      }%
+    }%
+  }%
+}
