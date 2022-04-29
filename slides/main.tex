@@ -52,7 +52,7 @@
 }
  
 \title[WBSG for Random Scalar Hyperbolic Laws]{%
-  A Well-Balanced Stochastic Galerkin for Scalar Hyperbolic Laws with Random Forcing.
+  A Well-Balanced Stochastic Galerkin Method for Scalar Hyperbolic Laws with Random Forcing.
 }
 \author[Chowdhary, Shedlock]{%
   Andrew Shedlock and Abhijit Chowdhary
@@ -347,7 +347,7 @@
             \right) \Phi_m(z)
         \right] \\
         = -\mathbb{E} \left[
-            \frac{b_{N,j} - b_{N,j-1}}{\Delta x} \frac{u_{N,j} - u_{N,j-1}}{2} \Phi_m(z)
+            \Big(\frac{b_{N,j} - b_{N,j-1}}{\Delta x}\Big)\Big( \frac{u_{N,j} - u_{N,j-1}}{2}\Big) \Phi_m(z)
         \right]
     \end{multline*}
     Finally, substitute in their gPC expansions and and use orthonormality:
