@@ -35,7 +35,65 @@
 %%% Methods
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Methods}
-
+As we described in the introduction, the scheme we will be working with combines parts of a well-balanced scheme and stochastic galerkin method. As we are working a system of the form
+\begin{align}
+    u_t + f(u)_x &= -b'(x)u \label{PDE}
+\end{align}
+At the steady state we have that $u_t = 0$, and so $(\ref{PDE})$ becomes the steady state condition
+\begin{align}
+    f(u)_x +b'(x)u &= 0 \label{ss}
+\end{align}
+We will assume that our flux function $f$ is such that $\frac{f'(\xi)}{\xi}$ is a well-defined number for all $\xi$. We can now define an operator $D:\mathbb{R}\to\mathbb{R}$ by
+\begin{align*}
+    D(u) &= \int_0^{u}\frac{f'(\xi)}{\xi}d\xi
+\end{align*}
+Now if $u(x)$ is a strong solution to $\ref{ss}$ and $u > 0$, then by Liebniz rule
+\begin{align*}
+    D(u(x))_x + b'(x) &= \frac{f'(u(x))u_x}{u(x)} + b'(x) = \frac{f(u(x))_x}{u(x)} + b'(x) = 0
+\end{align*}
+This shows that if $u$ is a strong solution to $(\ref{ss})$ and $u > 0$, then $D(u(x)) + q(x)$ is equal to some constant. If we assume that $D$ is monotone so that $D'(x)\not=0$, then we can see that
+\begin{align*}
+    u(x) &= \frac{f(u)_x}{D'(x)}
+\end{align*}
+If we adopt the finite volume framework, then we shall have $N_x$ cells with uniform mesh size of $\Delta x$. For $j = 1, \ldots, N_x$, we let $x_j$ represent the point at the center of the cell and let $x_{j+1/2}$ represent the point at the cell interface. Since we will have a uniform mesh, then $\Delta x = x_{j+1/2}-x_{j-1/2}$. We also have a uniform discretization in time and let $t^n$ represent the discretization at then $n^{th}$ level and $\Delta t =t^{n}-t^{n-1}$. The cell average at $t^n$ over $[x_{j-1/2},x_{j+1/2}]$ is given by
+\begin{align*}
+    u_j^n &= \frac{1}{\Delta x}\int_{x_{j-1/2}}^{x_{j+1/2}} u(x,t^n)dx
+\end{align*}
+At the cell interfaces we will have
+\begin{align*}
+    D_{j+1/2} &= D(u_{j+1/2})\\
+    f_{j+1/2} &= f(u_{j+1/2})\\
+    b_{j+1/2} &= b(x_{j+1/2})
+\end{align*}
+Then discrete analog to $(\ref{ss})$ will be
+\begin{align*}
+    \frac{f_{j+1/2}- f_{j-1/2}}{\Delta x} &= -\frac{(b_{j+1/2}-b_{j-1/2})}{\Delta x}\Big(\frac{f_{j+1/2}-f_{j-1/2}}{D_{j+1/2}-D_{j-1/2}}\Big)\\
+    D_{j+1/2}-D_{j-1/2} &= -(b_{j+1/2}-b_{j-1/2})\\
+    D_{j+1/2}+b_{j+1/2} &= D_{j-1/2}+b_{j-1/2} = \text{constant}
+\end{align*}
+In particular for the Burgers' equation we have that $f(u) = \frac{u^2}{2}$, so $D(u) = u$ and so
+\begin{align*}
+    \frac{f_{j+1/2}-f_{j-1/2}}{D_{j+1/2}-D_{j-1/2}} &= \frac{u_{j+1/2}^2 - u_{j-1/2}^2}{2(u_{j+1/2}-u_{j-1/2})} = \frac{u_{j+1/2}+u_{j-1/2}}{2}
+\end{align*}
+It follows that the following semi-discrete method for the Burgers' equation is well-balanced. 
+\begin{align}
+    \partial_t u_j + \Big(\frac{u_{j+1/2}^2-u_{j-1/2}^2}{\Delta x}\Big) &= -\Big(\frac{b_{j+1/2}-b_{j-1/2}}{\Delta x}\Big)\Big(\frac{u_{j+1/2}+u_{j-1/2}}{2}\Big)\label{semidiscrete_burgers}
+\end{align}
+It is described in \cite{Jin2001} that for a general $f$ that the scheme is well balanced. 
+\begin{align*}
+    \partial_t u_j + \Big(\frac{f_{j+1/2}-f_{j-1/2}}{\Delta x}\Big) &= -\Big(\frac{b_{j+1/2}-b_{j-1/2}}{\Delta x}\Big)\Big(\frac{u_{j+1/2}+u_{j-1/2}}{2}\Big) \label{semidiscrete_wb}
+\end{align*}
+In particular, $(\ref{semidiscrete_burgers})$ is a special case of this general formulation. This gives us the formulation for the deterministic well-balancing.\\ \newline
+For the stochastic case, we incorporate some uncertainty into our bottom topography via a random variable $Z:\Omega\to\mathbb{R}$ with law $P$. For every instance of our random variable $Z$, let $u(x,t;Z)$ be the function $(x,t)\to u(x,t;Z)$ which solves
+\begin{align*}
+    u_t(x,t;Z) + f(u(x,t;Z))_x &= - b(x;Z)u(x,t;Z)
+\end{align*}
+If we suppose that we have appropriate integrability conditions so that $u(x,t;Z),Z\in L^2(P)$ holds for all $(x,t)$, then we can use that $u(x,t;Z)$ will be $Z-$measurable. Consider $$\mathcal{P}_Z = \{\phi(Z):\,\phi\,\,\text{is a polynomial of any order}\}$$ 
+Then $\mathcal{P}_Z$ is a dense vector subspace in the space of all $Z-$measurable functions. Since $\mathcal{P}_Z\subset L^2(P)$ by our integrability assumption on $Z$ and that $L^2(P)$ is a Hilbert space, then we can find an orthonormal basis $\{\Phi_m(Z)\}_{m\in\mathbb{N}}$ of $\mathcal{P}_Z$. Thus $\{\Phi_m(Z)\}_{m\in\mathbb{N}}$ is dense in the space $Z-$measurable functions. Then since $u(x,t;Z)$ is $Z-$measurable, then we can find coefficients $\hat{u}_m(x,t)$ such that $P-$almost everywhere we have that
+\begin{align*}
+    u(x,t;Z) &= \sum_{m\in\mathbb{N}}\hat{u}_m(x,t)\Phi_m(Z)\\
+    \hat{u}_m(x,t) &= \mathbb{E}[u(x,t;Z)\Phi_m(Z)]
+\end{align*}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Results
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
