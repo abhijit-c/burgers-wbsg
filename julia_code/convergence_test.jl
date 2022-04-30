@@ -1,6 +1,6 @@
 using LinearAlgebra
 using Polynomials
-using Plots
+using Plots; gr()
 
 # Bottom topography function
 function bottom(x)
@@ -14,8 +14,7 @@ function bottom(x)
 end
 
 # Setting up the conditions we will need to implement
-cell_count = 100; dx = 10/cell_count; x_range=[0,10]; T=10; M=5;
-x=0.5*dx:dx:10-0.5*dx;
+x_range=[0,10]; T=10; M=5;
 
 # Building the matrix E
 Phi = [Polynomial([1]),
@@ -30,52 +29,51 @@ end
 include("build_E.jl")
 E = build_E(Phi);
 
-# Building u0_h
-
-# Our initial condition is u0 = 0 so coefficient functions should be
-# uniformly 0 with the exception of the boundary condition
-
-# First column corresponds to cell 0 which reflects our boundary condition
-# of u = 2. This boundary condition is constant in the random variable so
-# E[2 Phi_k] = 2 E[Phi_k] = 2 E[Phi_1 Phi_k] = 2 dirac_{1k}, so only the
-# first entry of the first column should be nonzero
-u0_h = zeros(M,cell_count+1);
-u0_h[1,1] = 2;
-
-# Buildng b_h
-#
-# We now construct the bottom topography function. The bottom topography
-# can be written as (2+z)*bottom(x) where bottom is the function defined
-# below. 
-coefficients=zeros(M,1);
-pz = Polynomial([2,1]);
-for k=1:M
-  coefficients[k] = integrate(0.5*pz*Phi[k], -1, 1);
-end
-b = bottom(x);
-b_h = hcat(zeros(M,1), coefficients*b');
-
-steady_mean = 2 .- 2*b;
-steady_sd   = abs.(b) / sqrt(3);
-                                            
-# Well Balanced Scheme
+MAX_M = 4;
+cell_sizes = [100, 200, 400];
+mean_err = zeros(length(cell_sizes), MAX_M);
+sd_err = zeros(length(cell_sizes), MAX_M);
 
 include("burgers_wbsg.jl")
-u_wb = burgers_wbsg(u0_h, b_h, E, T, dx, 0.0025/8);
-mean_wb = u_wb[1,2:end]; 
-sd_wb = norm.( eachcol(u_wb[2:end, 2:end]) );
+for m=1:MAX_M, j=1:length(cell_sizes)
+  println("Testing with (M, Nx) = ($m, $(cell_sizes[j]))");
+  En = E[1:m, 1:m, 1:m];
+  cell_count = cell_sizes[j]; dx = 10/cell_count; 
 
-include("burgers_nwbsg.jl")
-u_nwb = burgers_nwbsg(u0_h, b_h, E, T, dx, 0.0025/8);
-mean_nwb = u_nwb[1,2:end]; 
-sd_nwb = norm.( eachcol(u_nwb[2:end, 2:end]) );
+  x=0.5*dx:dx:10-0.5*dx;
 
-plot(x, steady_mean, c=:black, ls=:dash, lw=1.5, label="Steady State");
-scatter!(x, mean_wb, c=:red, lw=1.5, label="WBSG");
-scatter!(x, mean_nwb, c=:blue, lw=1.5, label="NWBWG");
-savefig("Figures/mean_sgwb.pdf")
+  # Building u0_h
+  u0_h = zeros(m,cell_count+1);
+  u0_h[1,1] = 2;
 
-plot(x, steady_sd, c=:black, ls=:dash, lw=1.5, label="Steady State");
-scatter!(x, sd_wb, c=:red, lw=1.5, label="WBSG");
-scatter!(x, sd_nwb, c=:blue, lw=1.5, label="NWBSG");
-savefig("Figures/sd_sgwb.pdf")
+  # Buildng b_h
+  coefficients=zeros(m,1);
+  pz = Polynomial([2,1]);
+  for k=1:m
+    coefficients[k] = integrate(0.5*pz*Phi[k], -1, 1);
+  end
+  b = bottom(x);
+  b_h = hcat(zeros(m,1), coefficients*b');
+
+  steady_mean = 2 .- 2*b;
+  steady_sd   = abs.(b) / sqrt(3);
+
+  # Well Balanced Scheme
+  u_wb = burgers_wbsg(u0_h, b_h, En, T, dx, 0.0025/8);
+  mean_wb = u_wb[1,2:end]; 
+  sd_wb = norm.( eachcol(u_wb[2:end, 2:end]) );
+
+  mean_err[j,m] = dx*norm(steady_mean .- mean_wb, 1);
+  sd_err[j,m] = dx*norm(steady_sd .- sd_wb, 1);
+end
+
+p1 = scatter(xaxis=:log, yaxis=:log);
+p1 = scatter!(cell_sizes, mean_err[:,4], markersize=5, label="Mean Errors")
+p1 = scatter!(cell_sizes, sd_err[:,4], markersize=5, label="SD Errors")
+
+p2 = scatter(yaxis=:log);
+p2 = scatter!(0:MAX_M-1, mean_err[3,:], markersize=5, label="Mean Errors")
+p2 = scatter!(0:MAX_M-1, sd_err[3,:], markersize=5, label="SD Errors")
+
+scatter(p1, p2, layout=(1,2));
+savefig("Figures/convergence.pdf")
