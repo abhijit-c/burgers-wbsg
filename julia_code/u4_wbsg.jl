@@ -1,12 +1,12 @@
-function burgers_wbsg(u0_h, b_h, E, T, dx, dt)
-# burgers_wbsg.jl solves the Burgers equation 
+function u4_wbsg(u0_h, b_h, E, T, dx, dt)
+# u4_wbsg.jl solves the Burgers equation 
 # \[
 #   u_t(x,t,z) + f_x(u(x,t,z)) = -b'(x,z)u(x,t,z), (*)
 #   u(x,0) = u0(x),
 #   u(0,t) = 2.
 # \] 
 # in space (x) and time (t) given some source term $-b'(x,z)u(t,x)$ where $z$ is
-# some user specified random variable and $f(u) = u^2/2$. The random input is
+# some user specified random variable and $f(u) = u^4/4$. The random input is
 # expanded with the generalized polynomial chaos (gPC) setting:
 # \begin{align*}
 #   u(x,t,z) &= u_N(x,t,z) = \sum_{m=1}^M \hat{u}_m(x,t)\Phi_m(z) \\
@@ -50,22 +50,22 @@ function burgers_wbsg(u0_h, b_h, E, T, dx, dt)
   u_h = u0_h;
   curr_t = 0.0;
   u_hj_prev = zeros(M);
-  Aj_prev = zeros(M,M);
+  Sj_prev = zeros(M,M);
   while curr_t < T
     u_hj_prev = u_h[:, 1];
-    Aj_prev = build_Aj(E, u_hj_prev);
+    Sj_prev = build_Sj(E, u_hj_prev);
     for j=2:N #For each spatial point, update gPC coefficients
       @views u_hj = u_h[:, j];
-      Aj = build_Aj(E, u_hj);
+      Sj = build_Sj(E, u_hj);
 
       @views Bj = B[:,:,j]; 
       @views Bj_prev = B[:,:,j-1];
 
-      rhs = -( Aj*u_hj - Aj_prev*u_hj_prev ) / (2*dx);
+      rhs = -( Sj*u_hj - Sj_prev*u_hj_prev ) / (4*dx);
       rhs = rhs .- ( Bj-Bj_prev )*( u_hj + u_hj_prev ) / (2*dx);
 
       u_hj_prev = u_hj;
-      Aj_prev = Aj;
+      Sj_prev = Sj;
       u_h[:,j] = u_hj .+ dt*rhs;
     end
     curr_t = curr_t + dt;
@@ -73,16 +73,20 @@ function burgers_wbsg(u0_h, b_h, E, T, dx, dt)
   return u_h
 end
 
-function build_Aj(E, u_hj)
+function build_Sj(E, u_hj)
   M = size(E,1);
-  Aj = zeros(M,M);
-  for m=1:M
-    for n=m:M
-      @views Aj[m,n] = dot(u_hj, E[:,m,n]);
-      Aj[n,m] = Aj[m,n];
+  Sj = zeros(M,M);
+  for p=1:M
+    for q=p:M
+      acc = 0.0;
+      for l=1:M, m=1:M, n=1:M
+        acc += u_hj[l]*u_hj[m]*u_hj[n]*E[l,m,n,p,q];
+      end
+      Sj[p,q] = acc;
+      Sj[q,p] = acc;
     end
   end
-  return Aj
+  return Sj
 end
 
 function build_Bj(E, b_hj)
@@ -90,7 +94,7 @@ function build_Bj(E, b_hj)
   Bj = zeros(M, M);
   for m=1:M
     for n=m:M
-      @views Bj[m,n] = dot(b_hj, E[:,m,n]);
+      @views Bj[m,n] = dot(b_hj, E[:,m,n,1,1]);
       Bj[n,m] = Bj[m,n];
     end
   end

@@ -6,15 +6,15 @@ using Plots
 function bottom(x)
   b=zeros(size(x)); N=length(x);
   for j=1:N
-    if x[j] > 4.5 && x[j] < 5.5
-      b[j] = cos(pi*x[j]); 
+    if x[j] > 5.0 && x[j] < 6.0
+      b[j] = 0.1*cos(pi*x[j]); 
     end
   end
   return b
 end
 
 # Setting up the conditions we will need to implement
-cell_count = 100; dx = 10/cell_count; x_range=[0,10]; T=10; M=5;
+cell_count = 100; dx = 10/cell_count; x_range=[0,10]; T=15; M=5;
 x=0.5*dx:dx:10-0.5*dx;
 
 # Building the matrix E
@@ -73,9 +73,9 @@ sd_nwb = norm.( eachcol(u_nwb[2:end, 2:end]) );
 plot(x, steady_mean, c=:black, ls=:dash, lw=1.5, label="Steady State");
 scatter!(x, mean_wb, c=:red, lw=1.5, label="WBSG");
 scatter!(x, mean_nwb, c=:blue, lw=1.5, label="NWBWG");
-savefig("Figures/mean_sgwb.pdf")
+savefig("Figures/mean_dc_sgwb.pdf")
 
 plot(x, steady_sd, c=:black, ls=:dash, lw=1.5, label="Steady State");
 scatter!(x, sd_wb, c=:red, lw=1.5, label="WBSG");
 scatter!(x, sd_nwb, c=:blue, lw=1.5, label="NWBSG");
-savefig("Figures/sd_sgwb.pdf")
+savefig("Figures/sd_dc_sgwb.pdf")

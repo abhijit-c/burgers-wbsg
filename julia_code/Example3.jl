@@ -1,4 +1,5 @@
 using LinearAlgebra
+using QuadGK
 using Polynomials
 using Plots
 
@@ -11,6 +12,29 @@ function bottom(x)
     end
   end
   return b
+end
+# Use numerical quadrature to estimate mean
+function u_mean(x)
+  b = bottom(x); N = length(b);
+  mean = zeros(N);
+  for i=1:N
+    b_i = b[i];
+    f(z) = 0.5*(3*(2-(2+z)*b_i))^(1/3);
+    mean[i], err = quadgk(f,-1,1);
+  end
+  return mean
+end
+# Use numerical quadrature to estimate sd
+function u_sd(x)
+  b = bottom(x); mean = u_mean(x); N = length(mean);
+  sd = zeros(N);
+  for i=1:N
+    b_i = b[i];
+    f(z) = 0.5*(3*(2-(2+z)*b_i))^(1/1.5);
+    sd[i], err = quadgk(f,-1,1);
+    sd[i] = sd[i] - mean[i]^2;
+  end
+  return sqrt.(sd);
 end
 
 # Setting up the conditions we will need to implement
@@ -27,8 +51,8 @@ for k=1:M
   Phi[k] = Phi[k] / sqrt( integrate(0.5*Phi[k]*Phi[k], -1, 1) );
 end
 
-include("build_E.jl")
-E = build_E(Phi);
+include("build_E4.jl")
+E = build_E4(Phi);
 
 # Building u0_h
 
@@ -40,7 +64,7 @@ E = build_E(Phi);
 # E[2 Phi_k] = 2 E[Phi_k] = 2 E[Phi_1 Phi_k] = 2 dirac_{1k}, so only the
 # first entry of the first column should be nonzero
 u0_h = zeros(M,cell_count+1);
-u0_h[1,1] = 2;
+u0_h[1,1] = 6^(1/3);
 
 # Buildng b_h
 #
@@ -55,27 +79,27 @@ end
 b = bottom(x);
 b_h = hcat(zeros(M,1), coefficients*b');
 
-steady_mean = 2 .- 2*b;
-steady_sd   = abs.(b) / sqrt(3);
+steady_mean = u_mean(x);
+steady_sd = u_sd(x);
                                             
 # Well Balanced Scheme
 
-include("burgers_wbsg.jl")
-u_wb = burgers_wbsg(u0_h, b_h, E, T, dx, 0.0025/8);
+include("u4_wbsg.jl")
+u_wb = u4_wbsg(u0_h, b_h, E, T, dx, 0.0025/8);
 mean_wb = u_wb[1,2:end]; 
 sd_wb = norm.( eachcol(u_wb[2:end, 2:end]) );
 
-include("burgers_nwbsg.jl")
-u_nwb = burgers_nwbsg(u0_h, b_h, E, T, dx, 0.0025/8);
+include("u4_nwbsg.jl")
+u_nwb = u4_nwbsg(u0_h, b_h, E, T, dx, 0.0025/8);
 mean_nwb = u_nwb[1,2:end]; 
 sd_nwb = norm.( eachcol(u_nwb[2:end, 2:end]) );
 
 plot(x, steady_mean, c=:black, ls=:dash, lw=1.5, label="Steady State");
 scatter!(x, mean_wb, c=:red, lw=1.5, label="WBSG");
 scatter!(x, mean_nwb, c=:blue, lw=1.5, label="NWBWG");
-savefig("Figures/mean_sgwb.pdf")
+savefig("Figures/mean_u4_sgwb.pdf")
 
 plot(x, steady_sd, c=:black, ls=:dash, lw=1.5, label="Steady State");
 scatter!(x, sd_wb, c=:red, lw=1.5, label="WBSG");
 scatter!(x, sd_nwb, c=:blue, lw=1.5, label="NWBSG");
-savefig("Figures/sd_sgwb.pdf")
+savefig("Figures/sd_u4_sgwb.pdf")

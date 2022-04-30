@@ -1,5 +1,5 @@
-function burgers_wbsg(u0_h, b_h, E, T, dx, dt)
-# burgers_wbsg.jl solves the Burgers equation 
+function burgers_nwbsg(u0_h, b_h, E, T, dx, dt)
+# burgers_nwbsg.jl solves the Burgers equation 
 # \[
 #   u_t(x,t,z) + f_x(u(x,t,z)) = -b'(x,z)u(x,t,z), (*)
 #   u(x,0) = u0(x),
@@ -62,7 +62,7 @@ function burgers_wbsg(u0_h, b_h, E, T, dx, dt)
       @views Bj_prev = B[:,:,j-1];
 
       rhs = -( Aj*u_hj - Aj_prev*u_hj_prev ) / (2*dx);
-      rhs = rhs .- ( Bj-Bj_prev )*( u_hj + u_hj_prev ) / (2*dx);
+      rhs = rhs .- ( Bj-Bj_prev )*( u_hj ) / (dx);
 
       u_hj_prev = u_hj;
       Aj_prev = Aj;
