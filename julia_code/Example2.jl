@@ -55,8 +55,10 @@ end
 b = bottom(x);
 b_h = hcat(zeros(M,1), coefficients*b');
 
-steady_mean = 2 .- 2*b;
-steady_sd   = abs.(b) / sqrt(3);
+x_s = LinRange(0,10,1000);
+b_s = bottom(x_s);
+steady_mean = 2 .- 2*b_s;
+steady_sd   = abs.(b_s) / sqrt(3);
                                             
 # Well Balanced Scheme
 
@@ -70,12 +72,12 @@ u_nwb = burgers_nwbsg(u0_h, b_h, E, T, dx, 0.0025/8);
 mean_nwb = u_nwb[1,2:end]; 
 sd_nwb = norm.( eachcol(u_nwb[2:end, 2:end]) );
 
-plot(x, steady_mean, c=:black, ls=:dash, lw=1.5, label="Steady State");
-scatter!(x, mean_wb, c=:red, lw=1.5, label="WBSG");
-scatter!(x, mean_nwb, c=:blue, lw=1.5, label="NWBWG");
+plot(x_s, steady_mean, c=:black, ls=:dash, lw=1.5, label="Steady State");
+scatter!(x, mean_wb, shape=:hexagon, ms=8, label="WBSG");
+scatter!(x, mean_nwb, shape=:utriangle, ms=5, label="NWBWG");
 savefig("Figures/mean_dc_sgwb.pdf")
 
-plot(x, steady_sd, c=:black, ls=:dash, lw=1.5, label="Steady State");
-scatter!(x, sd_wb, c=:red, lw=1.5, label="WBSG");
-scatter!(x, sd_nwb, c=:blue, lw=1.5, label="NWBSG");
+plot(x_s, steady_sd, c=:black, ls=:dash, lw=1.5, label="Steady State");
+scatter!(x, sd_wb, shape=:hexagon, ms=8, label="WBSG");
+scatter!(x, sd_nwb, shape=:utriangle, ms=5, label="NWBWG");
 savefig("Figures/sd_dc_sgwb.pdf")

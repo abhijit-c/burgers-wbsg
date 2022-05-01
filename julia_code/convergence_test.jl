@@ -67,13 +67,13 @@ for m=1:MAX_M, j=1:length(cell_sizes)
   sd_err[j,m] = dx*norm(steady_sd .- sd_wb, 1);
 end
 
-p1 = scatter(xaxis=:log, yaxis=:log);
-p1 = scatter!(cell_sizes, mean_err[:,4], markersize=5, label="Mean Errors")
-p1 = scatter!(cell_sizes, sd_err[:,4], markersize=5, label="SD Errors")
+p1 = plot(yaxis=:log);
+p1 = plot!(cell_sizes, mean_err[:,4], c=:orange, lw=3, label="Mean Errors")
+p1 = plot!(cell_sizes, sd_err[:,4], c=:green, ls=:dash, lw=3, label="SD Errors")
 
-p2 = scatter(yaxis=:log);
-p2 = scatter!(0:MAX_M-1, mean_err[3,:], markersize=5, label="Mean Errors")
-p2 = scatter!(0:MAX_M-1, sd_err[3,:], markersize=5, label="SD Errors")
+p2 = plot(yaxis=:log);
+p2 = plot!(0:MAX_M-1, mean_err[3,:], c=:orange, lw=3, label="Mean Errors")
+p2 = plot!(0:MAX_M-1, sd_err[3,:], c=:green, ls=:dash, lw=3, label="SD Errors")
 
-scatter(p1, p2, layout=(1,2));
+plot(p1, p2, layout=(1,2));
 savefig("Figures/convergence.pdf")

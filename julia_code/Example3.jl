@@ -95,11 +95,11 @@ mean_nwb = u_nwb[1,2:end];
 sd_nwb = norm.( eachcol(u_nwb[2:end, 2:end]) );
 
 plot(x, steady_mean, c=:black, ls=:dash, lw=1.5, label="Steady State");
-scatter!(x, mean_wb, c=:red, lw=1.5, label="WBSG");
-scatter!(x, mean_nwb, c=:blue, lw=1.5, label="NWBWG");
+scatter!(x, mean_wb, shape=:hexagon, ms=8, label="WBSG");
+scatter!(x, mean_nwb, shape=:utriangle, ms=5, label="NWBWG");
 savefig("Figures/mean_u4_sgwb.pdf")
 
 plot(x, steady_sd, c=:black, ls=:dash, lw=1.5, label="Steady State");
-scatter!(x, sd_wb, c=:red, lw=1.5, label="WBSG");
-scatter!(x, sd_nwb, c=:blue, lw=1.5, label="NWBSG");
+scatter!(x, sd_wb, shape=:hexagon, ms=8, label="WBSG");
+scatter!(x, sd_nwb, shape=:utriangle, ms=5, label="NWBWG");
 savefig("Figures/sd_u4_sgwb.pdf")
