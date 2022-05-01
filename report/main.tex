@@ -24,12 +24,11 @@
 %%% Introduction
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
+
+
+
 \cite{Jin2015}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Preliminaries (Note: Andrew, you may decide to just combine this w/ methods)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Preliminaries}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Methods
@@ -85,9 +84,9 @@ It is described in \cite{Jin2001} that for a general $f$ that the scheme is well
 \end{align}
 In particular, $(\ref{semidiscrete_burgers})$ is a special case of this general formulation. This gives us the formulation for the deterministic well-balancing.\\ \newline
 For the stochastic case, we incorporate some uncertainty into our bottom topography via a random variable $Z:\Omega\to\mathbb{R}$ with law $P$. For every instance of our random variable $Z$, let $u(x,t;Z)$ be the function $(x,t)\to u(x,t;Z)$ which solves
-\begin{align*}
+\begin{align} \label{Stochastic_PDE}
     u_t(x,t;Z) + f(u(x,t;Z))_x &= - b(x;Z)u(x,t;Z)
-\end{align*}
+\end{align}
 If we suppose that we have appropriate integrability conditions so that $u(x,t;Z),Z\in L^2(P)$ holds for all $(x,t)$, then we can use that $u(x,t;Z)$ will be $Z-$measurable. Consider $$\mathcal{P}_Z = \{\phi(Z):\,\phi\,\,\text{is a polynomial of any order}\}$$ 
 Then $\mathcal{P}_Z$ is a dense vector subspace in the space of all $Z-$measurable functions. Since $\mathcal{P}_Z\subset L^2(P)$ by our integrability assumption on $Z$ and that $L^2(P)$ is a Hilbert space, then we can find an orthonormal basis $\{\Phi_m(Z)\}_{m\in\mathbb{N}}$ of $\mathcal{P}_Z$. Thus $\{\Phi_m(Z)\}_{m\in\mathbb{N}}$ is dense in the space $Z-$measurable functions. Then since $u(x,t;Z)$ is $Z-$measurable, then we can find coefficients $\hat{u}_m(x,t)$ such that $P-$almost everywhere we have that
 \begin{align*}
@@ -125,6 +124,77 @@ If $f(u) = \frac{u^2}{2}$, then a scheme which satisfies $(\ref{condition})$ and
 %%% Results
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results}
+In order to verify that the proposed methods satisfy the well-balanced claim, in this section we provide several numerical examples of it doing so.
+Consider the stochastic PDE \eqref{Stochastic_PDE} that we constructed methods for last section; imposing the boundary conditions:
+\[
+\begin{cases}
+    u(x,0) = 0, &\text{for } x > 0 \\
+    u(0,t) = 2, &\text{for } t > 0
+\end{cases}
+\]
+we solve the PDE under both Burger's flux $f(u) = u^2 /2$ and the alternate flux given by $f(u) = u^4 / 4$ over the following choices of bottom topography:
+\begin{align}
+    \label{b1}
+    b_1(x,z)
+    &=
+    \begin{cases}
+        (2+z) \cos(\pi x), & 4.5 \leq x \leq 5.5 \\
+        0, & \text{otherwise}
+    \end{cases} \\
+    \label{b2}
+    b_2(x,z)
+    &=
+    \begin{cases}
+        0.1(2+z) \cos(\pi x), & 5 \leq x \leq 6 \\
+        0, & \text{otherwise}
+    \end{cases}
+\end{align}
+Bottom topography \eqref{b1} is continuous whereas \eqref{b2} is discontinuous, resulting in continuous and discontinuous resulting solutions.
+In all examples $z \sim {\rm Uniform}[-1,1]$.
+
+For all figures, we choose number of cells $N_c = 100$ and the time step is fixed to $\Delta t = 3200^{-1}$. 
+In the steady state, assuming $u > 0$, \eqref{Stochastic_PDE} reduces down to $u'(x) = -b'(x,z)$, hence we find the steady state solution $u(x) = 2 - b(x,z)$, from which we can derive the steady state mean and standard deviation $\mathbb{E}[u] = 2 - 2b(x,0)$ and $\mathbb{V}[u] = \frac{1}{\sqrt{3}} |b(x,0)|$, which is what we compare the numerically computed solution to in Figures \ref{fig:b1-mean} - \ref{fig:b2-sd}.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.75\textwidth]{Figures/mean_sgwb}
+    \caption{Caption}
+    \label{fig:b1-mean}
+\end{figure}
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.75\textwidth]{Figures/sd_sgwb}
+    \caption{Caption}
+    \label{fig:b1-sd}
+\end{figure}
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.75\textwidth]{Figures/mean_dc_sgwb}
+    \caption{Caption}
+    \label{fig:b2-mean}
+\end{figure}
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.75\textwidth]{Figures/sd_dc_sgwb}
+    \caption{Caption}
+    \label{fig:b2-sd}
+\end{figure}
+
+
+\begin{table}[!htb]
+\centering
+\begin{tabular}{@{}l|lll@{}}
+\toprule
+CPU Time & 100  & 200  & 400   \\ \midrule
+1        & 2.83 & 3.62 & \ 7.28  \\
+2        & 2.84 & 5.69 & 11.22 \\
+3        & 3.14 & 6.07 & 12.22 \\
+4        & 3.81 & 7.64 & 15.37 \\ \bottomrule
+\end{tabular}
+\caption{The estimated CPU time (seconds) for the Well-Balanced Stochastic Galerkin method for bottom topography $b_1$ and flux $f(u) = u^2/2$ with cell count $N_c \in \{100, 200, 400\}$ and number of gPC coefficients $M \in \{1,2,3,4\}$.}
+\label{tab:cpu-time}
+\end{table}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Conclusion
