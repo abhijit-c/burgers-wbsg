@@ -153,33 +153,7 @@ Bottom topography \eqref{b1} is continuous whereas \eqref{b2} is discontinuous, 
 In all examples $z \sim {\rm Uniform}[-1,1]$.
 
 For all figures, we choose number of cells $N_c = 100$ and the time step is fixed to $\Delta t = 3200^{-1}$. 
-In the steady state, assuming $u > 0$, \eqref{Stochastic_PDE} reduces down to $u'(x) = -b'(x,z)$, hence we find the steady state solution $u(x) = 2 - b(x,z)$, from which we can derive the steady state mean and standard deviation $\mathbb{E}[u] = 2 - 2b(x,0)$ and $\mathbb{V}[u] = \frac{1}{\sqrt{3}} |b(x,0)|$, which is what we compare the numerically computed solution to in Figures \ref{fig:b1-mean} - \ref{fig:b2-sd}.
-
-\begin{figure}[!htb]
-    \centering
-    \includegraphics[width=0.75\textwidth]{Figures/mean_sgwb}
-    \caption{Caption}
-    \label{fig:b1-mean}
-\end{figure}
-\begin{figure}[!htb]
-    \centering
-    \includegraphics[width=0.75\textwidth]{Figures/sd_sgwb}
-    \caption{Caption}
-    \label{fig:b1-sd}
-\end{figure}
-\begin{figure}[!htb]
-    \centering
-    \includegraphics[width=0.75\textwidth]{Figures/mean_dc_sgwb}
-    \caption{Caption}
-    \label{fig:b2-mean}
-\end{figure}
-\begin{figure}[!htb]
-    \centering
-    \includegraphics[width=0.75\textwidth]{Figures/sd_dc_sgwb}
-    \caption{Caption}
-    \label{fig:b2-sd}
-\end{figure}
-
+In the steady state, assuming $u > 0$, \eqref{Stochastic_PDE} reduces down to $u'(x) = -b'(x,z)$, hence we find the steady state solution $u(x) = 2 - b(x,z)$, from which we can derive the steady state mean and standard deviation $\mathbb{E}[u] = 2 - 2b(x,0)$ and $\mathbb{V}[u] = \frac{1}{\sqrt{3}} |b(x,0)|$, which is what we compare the numerically computed solution to in Figures \ref{fig:b1} - \ref{fig:b2d}.
 
 \begin{table}[!htb]
 \centering
@@ -195,6 +169,24 @@ CPU Time & 100  & 200  & 400   \\ \midrule
 \label{tab:cpu-time}
 \end{table}
 
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.49\textwidth]{Figures/mean_sgwb}
+    \includegraphics[width=0.49\textwidth]{Figures/sd_sgwb}
+    \caption{}
+    \label{fig:b1}
+\end{figure}
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.49\textwidth]{Figures/mean_dc_sgwb}
+    \includegraphics[width=0.49\textwidth]{Figures/sd_dc_sgwb}
+    \caption{}
+    \label{fig:b2}
+\end{figure}
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Conclusion
@@ -204,6 +196,6 @@ CPU Time & 100  & 200  & 400   \\ \midrule
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% References
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\clearpage
 \printbibliography
-
 \end{document}
