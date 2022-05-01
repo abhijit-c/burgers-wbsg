@@ -70,15 +70,26 @@ u_nwb = burgers_nwbsg(u0_h, b_h, E, T, dx, 0.0025/8);
 mean_nwb = u_nwb[1,2:end]; 
 sd_nwb = norm.( eachcol(u_nwb[2:end, 2:end]) );
 
-plot(x, steady_mean, c=:black, ls=:dash, lw=1.5, label="Steady State");
-scatter!(x, mean_wb, shape=:hexagon, ms=8, label="WBSG");
-scatter!(x, mean_nwb, shape=:utriangle, ms=5, label="NWBWG");
-savefig("Figures/mean_sgwb.pdf")
+p1 = plot(x, steady_mean, c=:black, ls=:dash, lw=1.5, label="");
+p1 = scatter!(x, mean_wb, shape=:hexagon, ms=8, label="");
+p1 = scatter!(x, mean_nwb, shape=:utriangle, ms=5, label="");
 
-plot(x, steady_sd, c=:black, ls=:dash, lw=1.5, label="Steady State");
-scatter!(x, sd_wb, shape=:hexagon, ms=8, label="WBSG");
-scatter!(x, sd_nwb, shape=:utriangle, ms=5, label="NWBWG");
-savefig("Figures/sd_sgwb.pdf")
+p2 = plot(x, steady_sd, c=:black, ls=:dash, lw=1.5, label="Steady State");
+p2 = scatter!(x, sd_wb, shape=:hexagon, ms=8, label="WBSG");
+p2 = scatter!(x, sd_nwb, shape=:utriangle, ms=5, label="NWBWG");
+
+plot(p1, p2, layout=(1,2), size=(1000,500))
+savefig("Figures/b1.pdf")
+
+#plot(x, steady_mean, c=:black, ls=:dash, lw=1.5, label="Steady State");
+#scatter!(x, mean_wb, shape=:hexagon, ms=8, label="WBSG");
+#scatter!(x, mean_nwb, shape=:utriangle, ms=5, label="NWBWG");
+#savefig("Figures/mean_sgwb.pdf")
+#
+#plot(x, steady_sd, c=:black, ls=:dash, lw=1.5, label="Steady State");
+#scatter!(x, sd_wb, shape=:hexagon, ms=8, label="WBSG");
+#scatter!(x, sd_nwb, shape=:utriangle, ms=5, label="NWBWG");
+#savefig("Figures/sd_sgwb.pdf")
 
 #scatter(x, mean_wb, shape=:hexagon, ms=5, c=:red, ribbon=sd_wb, fillalpha=.25, label="WB SG")
 #scatter!(x, mean_nwb, c=:orange, ribbon=sd_nwb, fillalpha=.25, label="Non-WB SG")
